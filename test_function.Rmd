@@ -1,0 +1,35 @@
+---
+title: "Testing Almond Function"
+author: "Brooke Grazda & Liz Peterson"
+date: "2025-04-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Load in 
+library(tidyverse)
+library(here)
+```
+```{r}
+# Read in data
+clim <- read_delim(here('data', 'clim.txt'))
+```
+
+```{r}
+# Source the function
+source(here('yield.R'))
+
+# Pass in dataframe
+result <- almond_model(clim)
+
+# Print results in a table 
+kableExtra::kable(result)
+```
+
+
+
+
