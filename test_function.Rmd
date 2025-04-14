@@ -9,17 +9,20 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
+#| quiet: TRUE
 # Load in 
 library(tidyverse)
 library(here)
 ```
-```{r}
+
+```{r, warning=FALSE, message=FALSE}
+#| quiet: TRUE
 # Read in data
 clim <- read_delim(here('data', 'clim.txt'))
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Source the function
 source(here('yield.R'))
 
@@ -30,7 +33,7 @@ result <- almond_model(clim)
 kableExtra::kable(result)
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Diagram
 knitr::include_graphics("IMG_0243.jpg")
 ```
