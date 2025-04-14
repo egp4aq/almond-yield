@@ -30,6 +30,8 @@ result <- almond_model(clim)
 kableExtra::kable(result)
 ```
 
-
-
+```{r}
+# Diagram
+knitr::include_graphics("IMG_0243.jpg")
+```
 
