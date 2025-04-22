@@ -37,7 +37,7 @@ sensitivity_results <- pmap(
     
     # Create a new data frame with the combination of parameters and results, including year
     results_with_year <- yield_anomaly_df %>%
-      select(wy, profit) %>%  # Select year (wy) and profit
+      select(wy, profit) %>%  # Select wy and profit
       mutate(baseline_profit = baseline_profit, production_cost = production_cost)  # Add parameters to the results
     
     # Return the results
@@ -52,33 +52,45 @@ sensitivity_results_df <- bind_rows(sensitivity_results)
 head(sensitivity_results_df)
 ```
 
-plot that shows yield anomaly for each year, accounting for uncertainty in the parameters
+Plot that shows yield anomaly for each year, accounting for uncertainty in the parameters
 ```{r}
-# Plot the average profit over time (water year)
-ggplot(sensitivity_results_df, aes(x = wy, y = profit)) +
-  geom_line() +
-  labs(title = "Average Profit Over Time",
-       x = "Water Year (wy)",
-       y = "Profit ($)") +
-  theme_minimal()
+# Group by year and calculate mean + uncertainty (e.g., 2.5% and 97.5% quantiles)
+profit_summary <- sensitivity_results_df %>%
+  group_by(wy) %>%
+  summarise(
+    mean_profit = mean(profit),
+    lower = quantile(profit, 0.025),
+    upper = quantile(profit, 0.975)
+  )
 
+# Plot
+ggplot(profit_summary, aes(x = wy, y = mean_profit)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "skyblue", alpha = 0.3) +
+  geom_line(color = "steelblue", size = 1) +
+  labs(
+    title = "Annual Profit Over Time with Uncertainty",
+    x = "Water Year",
+    y = "Profit ($)"
+  ) +
+  theme_minimal(base_size = 14)
 ```
 
 ```{r}
-# Calculate the average profit for each combination of baseline_profit and production_cost
-average_profit_df <- sensitivity_results_df %>%
-  group_by(baseline_profit, production_cost) %>%
-  summarise(mean_profit = mean(profit), .groups = "drop")
+# Plot 2: Distribution of Profits Across All Years (like yield overview)
 
-# Simplified heatmap of average profit by baseline_profit and production_cost
-ggplot(average_profit_df, aes(x = baseline_profit, y = production_cost, fill = mean_profit)) +
-  geom_tile() +
-  labs(title = "Average Profit by Baseline Profit and Production Cost",
-       x = "Baseline Profit ($/acre)",
-       y = "Production Cost ($/acre)",
-       fill = "Average Profit ($)") +
-  theme_minimal()
-
+# All years together: show density with some jitter
+ggplot(sensitivity_results_df, aes(x = profit)) +
+  geom_density(fill = "lightgreen", alpha = 0.5) +
+  geom_rug(alpha = 0.3) +
+  labs(
+    title = "Distribution of Profit Across All Years and Scenarios",
+    x = "Profit ($)",
+    y = "Density"
+  ) +
+  theme_minimal(base_size = 14)
 ```
+
+
+
 
 There are a couple of things we can see from our plots: first, the average profit over time, we see that 1995 was a really good year for their yield. Other than that, there were a couple little spikes in 2005 and 2007, but generally the profit yield has been pretty low. The second plot shows us that there is a higher average profit when the baseline profit is higher, which is quite intuitive. Either way, it seems like this is a pretty risky business to get in to. 
