@@ -11,16 +11,17 @@ library(purrr)
 ```
 
 preliminary research:
-according to fruitgrowersupply.com (they report on industry standards), we found that average yield will range from 1400 - 2600 lbs/acre of almonds and will offer around $0.90 - $2.10. 
+according to fruitgrowersupply.com (they report on industry standards), we found that average yield will range from 1400 - 2600 lbs/acre of almonds and will offer around 0.90 - 2.10 dollars. 
 
-We decided to use 1,800 pounds / acre for the baseline almond yield in California (this was synthesis from the almond board of Calfornia.) When we convert this to tons/acre (as it is in the paper) we get 0.9 tons/acre. We decided to use $1.50 for our baseline price (in the middle of the range we found). We did some basic stoichiometry to make sure that our units all canceled out correctly, and we got $2,700 / acre baseline price. 
+We decided to use 1,800 pounds / acre for the baseline almond yield in California (this was synthesis from the almond board of Calfornia.) When we convert this to tons/acre (as it is in the paper) we get 0.9 tons/acre. We decided to use $1.50 for our baseline price (in the middle of the range we found). We did some basic stoichiometry to make sure that our units all canceled out correctly, and we got 2,700 dollars / acre baseline price. 
 
 From university of california agricultural issues center sample cost and returns studies, we found that the average cost of production over the past 30 years has been $4,500 / acre. 
 
 We know that our final profit will be the (yield * unit price) - cost of production. We also want to call our yield function to account for the anamoly in yield. 
 
 We have our function written, now we want to perform our informal insensitivity analysis on two parameters: `baseline_profit` and `production_cost`
-```{r}
+
+```{r, warning=FALSE, message=FALSE}
 # Create ranges for both baseline_profit and production_cost
 baseline_profit_values <- seq(2000, 3500, by = 500)
 production_cost_values <- seq(3500, 5500, by = 500)
@@ -65,14 +66,13 @@ profit_summary <- sensitivity_results_df %>%
 
 # Plot
 ggplot(profit_summary, aes(x = wy, y = mean_profit)) +
-  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "skyblue", alpha = 0.3) +
-  geom_line(color = "steelblue", size = 1) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "pink") +
+  geom_line(color = "blue", size = 1) +
   labs(
     title = "Annual Profit Over Time with Uncertainty",
-    x = "Water Year",
-    y = "Profit ($)"
-  ) +
-  theme_minimal(base_size = 14)
+    x = "Year",
+    y = "Profit"
+  )
 ```
 
 ```{r}
@@ -80,17 +80,14 @@ ggplot(profit_summary, aes(x = wy, y = mean_profit)) +
 
 # All years together: show density with some jitter
 ggplot(sensitivity_results_df, aes(x = profit)) +
-  geom_density(fill = "lightgreen", alpha = 0.5) +
+  geom_density(fill = "blue", alpha = 0.5) +
   geom_rug(alpha = 0.3) +
   labs(
     title = "Distribution of Profit Across All Years and Scenarios",
-    x = "Profit ($)",
+    x = "Profit",
     y = "Density"
   ) +
   theme_minimal(base_size = 14)
 ```
 
-
-
-
-There are a couple of things we can see from our plots: first, the average profit over time, we see that 1995 was a really good year for their yield. Other than that, there were a couple little spikes in 2005 and 2007, but generally the profit yield has been pretty low. The second plot shows us that there is a higher average profit when the baseline profit is higher, which is quite intuitive. Either way, it seems like this is a pretty risky business to get in to. 
+There are a couple of things we can see from our plots: first, the annual profit over time, we see that 1995 was a really good year for their yield. We see from the first plot in the ribbons, that there is quite a large variability in the uncertainties. It seems like our model is pretty sensitive to uncertainty. The second plot shows us that the combinations of parameters most of the time give us a profit that is pretty low, around 2,000. There is a long tail which means it not as often, but sometimes reaches out to much higher profits. This aligns with what we saw in our previous plot with few large spikes. 
