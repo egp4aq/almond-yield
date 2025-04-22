@@ -38,3 +38,18 @@ kableExtra::kable(result)
 knitr::include_graphics("IMG_0243.jpg")
 ```
 
+```{r}
+source(here('profit.R'))
+
+profit_results <- profit(clim)
+```
+
+```{r}
+yield_anomaly <- almond_model(clim)
+  
+  # year_yield_anomaly <- yield_anomaly$anomaly[yield_anomaly$wy == wy]
+  
+  yield_anomaly <- yield_anomaly %>% 
+    mutate(profit = (2700 * yield_anomaly$anomaly) - 4500)
+```
+

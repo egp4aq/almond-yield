@@ -3,3 +3,82 @@ title: "almond_profit_model"
 format: html
 ---
 
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(purrr)
+```
+
+preliminary research:
+according to fruitgrowersupply.com (they report on industry standards), we found that average yield will range from 1400 - 2600 lbs/acre of almonds and will offer around $0.90 - $2.10. 
+
+We decided to use 1,800 pounds / acre for the baseline almond yield in California (this was synthesis from the almond board of Calfornia.) When we convert this to tons/acre (as it is in the paper) we get 0.9 tons/acre. We decided to use $1.50 for our baseline price (in the middle of the range we found). We did some basic stoichiometry to make sure that our units all canceled out correctly, and we got $2,700 / acre baseline price. 
+
+From university of california agricultural issues center sample cost and returns studies, we found that the average cost of production over the past 30 years has been $4,500 / acre. 
+
+We know that our final profit will be the (yield * unit price) - cost of production. We also want to call our yield function to account for the anamoly in yield. 
+
+We have our function written, now we want to perform our informal insensitivity analysis on two parameters: `baseline_profit` and `production_cost`
+```{r}
+# Create ranges for both baseline_profit and production_cost
+baseline_profit_values <- seq(2000, 3500, by = 500)
+production_cost_values <- seq(3500, 5500, by = 500)
+
+# Create a data frame with all combinations of baseline_profit and production_cost
+param_grid <- expand.grid(baseline_profit = baseline_profit_values, production_cost = production_cost_values)
+
+# Run pmap to calculate profit for all combinations of baseline_profit and production_cost and make sure to include year
+sensitivity_results <- pmap(
+  param_grid,
+  function(baseline_profit, production_cost) {
+    # Calculate the yield anomaly and profit
+    yield_anomaly_df <- profit(climate_df, baseline_profit = baseline_profit, production_cost = production_cost)
+    
+    # Create a new data frame with the combination of parameters and results, including year
+    results_with_year <- yield_anomaly_df %>%
+      select(wy, profit) %>%  # Select year (wy) and profit
+      mutate(baseline_profit = baseline_profit, production_cost = production_cost)  # Add parameters to the results
+    
+    # Return the results
+    return(results_with_year)
+  }
+)
+
+# Combine the list of data frames into a single data frame
+sensitivity_results_df <- bind_rows(sensitivity_results)
+
+# View the first few rows of the results to ensure it includes year and profit
+head(sensitivity_results_df)
+```
+
+plot that shows yield anomaly for each year, accounting for uncertainty in the parameters
+```{r}
+# Plot the average profit over time (water year)
+ggplot(sensitivity_results_df, aes(x = wy, y = profit)) +
+  geom_line() +
+  labs(title = "Average Profit Over Time",
+       x = "Water Year (wy)",
+       y = "Profit ($)") +
+  theme_minimal()
+
+```
+
+```{r}
+# Calculate the average profit for each combination of baseline_profit and production_cost
+average_profit_df <- sensitivity_results_df %>%
+  group_by(baseline_profit, production_cost) %>%
+  summarise(mean_profit = mean(profit), .groups = "drop")
+
+# Simplified heatmap of average profit by baseline_profit and production_cost
+ggplot(average_profit_df, aes(x = baseline_profit, y = production_cost, fill = mean_profit)) +
+  geom_tile() +
+  labs(title = "Average Profit by Baseline Profit and Production Cost",
+       x = "Baseline Profit ($/acre)",
+       y = "Production Cost ($/acre)",
+       fill = "Average Profit ($)") +
+  theme_minimal()
+
+```
+
+There are a couple of things we can see from our plots: first, the average profit over time, we see that 1995 was a really good year for their yield. Other than that, there were a couple little spikes in 2005 and 2007, but generally the profit yield has been pretty low. The second plot shows us that there is a higher average profit when the baseline profit is higher, which is quite intuitive. Either way, it seems like this is a pretty risky business to get in to. 
