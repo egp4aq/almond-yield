@@ -1,4 +1,4 @@
-# Define function to calculate yield anomality of almonds in California
+# Define function to calculate yield anomaly of almonds in California
 #' 
 #' @param climate_df Dataframe. Must contain wy (water year), day, month, tmin_c (daily minimum temperature), tmax_c (daily maximum temperature), precip (daily precipitation), 
 #' 
@@ -27,5 +27,6 @@ almond_model <- function(climate_df) {
                                 mean = mean(yield_anomaly$anomaly))
     
     # Return dataframe
-    return(anomaly_stats)
+    #return(anomaly_stats)
+    return(yield_anomaly)
 }
