@@ -52,4 +52,3 @@ yield_anomaly <- almond_model(clim)
   yield_anomaly <- yield_anomaly %>% 
     mutate(profit = (2700 * yield_anomaly$anomaly) - 4500)
 ```
-

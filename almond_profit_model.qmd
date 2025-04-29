@@ -8,6 +8,7 @@ library(ggplot2)
 library(tidyverse)
 library(dplyr)
 library(purrr)
+library(here)
 ```
 
 preliminary research:
@@ -20,6 +21,13 @@ From university of california agricultural issues center sample cost and returns
 We know that our final profit will be the (yield * unit price) - cost of production. We also want to call our yield function to account for the anamoly in yield. 
 
 We have our function written, now we want to perform our informal insensitivity analysis on two parameters: `baseline_profit` and `production_cost`
+```{r}
+source('profit.R')
+source('yield.R')
+
+climate_df <- read_delim(here('data', 'clim.txt'))
+```
+
 
 ```{r, warning=FALSE, message=FALSE}
 # Create ranges for both baseline_profit and production_cost
@@ -51,7 +59,9 @@ sensitivity_results_df <- bind_rows(sensitivity_results)
 
 # View the first few rows of the results to ensure it includes year and profit
 head(sensitivity_results_df)
+
 ```
+
 
 Plot that shows yield anomaly for each year, accounting for uncertainty in the parameters
 ```{r}

@@ -7,7 +7,7 @@
 #' 
 #' 
 
-profit <- function(climate_df, baseline_profit = 2700, production_cost = 4500) {
+profit <- function(clim, baseline_profit = 2700, production_cost = 4500) {
   
   # Source the function
   source(here('yield.R'))
